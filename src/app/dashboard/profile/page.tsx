@@ -10,6 +10,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import { Skeleton } from "~/components/ui/skeleton";
 
 const profileSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -20,10 +21,11 @@ type ProfileForm = z.infer<typeof profileSchema>;
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { data: user, refetch } = api.auth.me.useQuery();
+  const utils = api.useUtils();
+  const { data: user, isLoading: userLoading, isFetching: userFetching } = api.auth.me.useQuery();
   const updateMutation = api.auth.updateProfile.useMutation({
-    onSuccess: () => {
-      refetch();
+    onSuccess: async () => {
+      await utils.auth.me.invalidate();
       alert("Profile updated successfully!");
     },
   });
@@ -46,13 +48,40 @@ export default function ProfilePage() {
     }
   }, [user, reset]);
 
-  if (!user) {
+  if (userLoading || userFetching || !user) {
     return (
-      <div className="container mx-auto py-8">
-        <p>Loading...</p>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 max-w-2xl">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-7 w-48 mb-2" />
+            <Skeleton className="h-4 w-64" />
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-3 w-32" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <Skeleton className="h-10 flex-1" />
+                <Skeleton className="h-10 w-24" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
+
 
   const onSubmit = async (data: ProfileForm) => {
     try {

@@ -11,6 +11,7 @@ import { Label } from "~/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import { Skeleton } from "~/components/ui/skeleton";
 
 export default function CategoriesPage() {
   const params = useParams();
@@ -25,13 +26,14 @@ export default function CategoriesPage() {
   const [createCategoryName, setCreateCategoryName] = useState<string>("");
   const [editCategoryName, setEditCategoryName] = useState<string>("");
 
-  const { data: categories, refetch } = api.category.getByRestaurant.useQuery({
+  const utils = api.useUtils();
+  const { data: categories, isLoading: categoriesLoading } = api.category.getByRestaurant.useQuery({
     restaurantId,
   });
 
   const createMutation = api.category.create.useMutation({
-    onSuccess: () => {
-      refetch();
+    onSuccess: async () => {
+      await utils.category.getByRestaurant.invalidate({ restaurantId });
       setIsCreateOpen(false);
       setSelectedParentForCreate(null);
       setCreateParentId("__none__");
@@ -40,16 +42,16 @@ export default function CategoriesPage() {
   });
 
   const updateMutation = api.category.update.useMutation({
-    onSuccess: () => {
-      refetch();
+    onSuccess: async () => {
+      await utils.category.getByRestaurant.invalidate({ restaurantId });
       setIsEditOpen(false);
       setEditingCategory(null);
     },
   });
 
   const deleteMutation = api.category.delete.useMutation({
-    onSuccess: () => {
-      refetch();
+    onSuccess: async () => {
+      await utils.category.getByRestaurant.invalidate({ restaurantId });
     },
   });
 
@@ -169,7 +171,9 @@ export default function CategoriesPage() {
                 disabled={createMutation.isPending || !createCategoryName.trim()} 
                 className="text-sm sm:text-base w-full sm:w-auto"
               >
-                {selectedParentForCreate ? "Create Subcategory" : "Create Category"}
+                {createMutation.isPending 
+                  ? (selectedParentForCreate ? "Creating..." : "Creating...") 
+                  : (selectedParentForCreate ? "Create Subcategory" : "Create Category")}
               </Button>
             </form>
           </DialogContent>
@@ -182,7 +186,27 @@ export default function CategoriesPage() {
           <CardTitle className="text-lg sm:text-xl">All Categories</CardTitle>
         </CardHeader>
         <CardContent className="p-0 sm:p-6">
-          {categories && categories.length === 0 ? (
+          {categoriesLoading ? (
+            <div className="space-y-0">
+              {/* Skeleton Loaders */}
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="border-b border-gray-200 last:border-b-0">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 p-3 sm:p-3">
+                    <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                      <Skeleton className="w-2 h-2 rounded-full" />
+                      <Skeleton className="h-4 w-32 sm:w-40" />
+                      <Skeleton className="h-3 w-20 hidden sm:block" />
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2 w-full sm:w-auto">
+                      <Skeleton className="h-8 w-24 sm:w-28" />
+                      <Skeleton className="h-8 w-16 sm:w-20" />
+                      <Skeleton className="h-8 w-16 sm:w-20" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : categories && categories.length === 0 ? (
             <p className="text-center text-sm sm:text-base text-gray-500 py-8 px-4">No categories yet. Create your first category!</p>
           ) : (
             <div className="space-y-0">
@@ -234,9 +258,10 @@ export default function CategoriesPage() {
                                 deleteMutation.mutate({ id: mainCategory.id });
                               }
                             }}
+                            disabled={deleteMutation.isPending}
                             className="text-xs sm:text-sm flex-1 sm:flex-initial"
                           >
-                            Delete
+                            {deleteMutation.isPending ? "Deleting..." : "Delete"}
                           </Button>
                         </div>
                       </div>
@@ -280,9 +305,10 @@ export default function CategoriesPage() {
                                         deleteMutation.mutate({ id: subcategory.id });
                                       }
                                     }}
+                                    disabled={deleteMutation.isPending}
                                     className="text-xs sm:text-sm flex-1 sm:flex-initial"
                                   >
-                                    Delete
+                                    {deleteMutation.isPending ? "Deleting..." : "Delete"}
                                   </Button>
                                 </div>
                               </div>
@@ -350,7 +376,7 @@ export default function CategoriesPage() {
                 disabled={updateMutation.isPending || !editCategoryName.trim()} 
                 className="text-sm sm:text-base w-full sm:w-auto"
               >
-                Update
+                {updateMutation.isPending ? "Updating..." : "Update"}
               </Button>
             </form>
           )}

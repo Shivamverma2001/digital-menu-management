@@ -14,6 +14,7 @@ import { ImageUpload } from "~/components/image-upload";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "~/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import { Skeleton } from "~/components/ui/skeleton";
 
 export default function DishesPage() {
   const params = useParams();
@@ -24,27 +25,28 @@ export default function DishesPage() {
   const [createImageUrl, setCreateImageUrl] = useState("");
   const [editImageUrl, setEditImageUrl] = useState("");
 
-  const { data: dishes, refetch } = api.dish.getByRestaurant.useQuery({
+  const utils = api.useUtils();
+  const { data: dishes, isLoading: dishesLoading } = api.dish.getByRestaurant.useQuery({
     restaurantId,
   });
 
-  const { data: categories } = api.category.getByRestaurant.useQuery({
+  const { data: categories, isLoading: categoriesLoading } = api.category.getByRestaurant.useQuery({
     restaurantId,
   });
 
-  const { data: restaurant } = api.restaurant.getById.useQuery({ id: restaurantId });
+  const { data: restaurant, isLoading: restaurantLoading } = api.restaurant.getById.useQuery({ id: restaurantId });
 
   const createMutation = api.dish.create.useMutation({
-    onSuccess: () => {
-      refetch();
+    onSuccess: async () => {
+      await utils.dish.getByRestaurant.invalidate({ restaurantId });
       setIsCreateOpen(false);
       setCreateImageUrl("");
     },
   });
 
   const updateMutation = api.dish.update.useMutation({
-    onSuccess: () => {
-      refetch();
+    onSuccess: async () => {
+      await utils.dish.getByRestaurant.invalidate({ restaurantId });
       setIsEditOpen(false);
       setEditingDish(null);
       setEditImageUrl("");
@@ -52,8 +54,8 @@ export default function DishesPage() {
   });
 
   const deleteMutation = api.dish.delete.useMutation({
-    onSuccess: () => {
-      refetch();
+    onSuccess: async () => {
+      await utils.dish.getByRestaurant.invalidate({ restaurantId });
     },
   });
 
@@ -110,13 +112,17 @@ export default function DishesPage() {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       {/* Breadcrumb Navigation */}
       <div className="mb-4 sm:mb-6">
-        <Link
-          href={`/dashboard/restaurants/${restaurantId}`}
-          className="inline-flex items-center gap-2 text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
-          <span>Back to {restaurant?.name || "Restaurant"}</span>
-        </Link>
+        {restaurantLoading ? (
+          <Skeleton className="h-5 w-48" />
+        ) : (
+          <Link
+            href={`/dashboard/restaurants/${restaurantId}`}
+            className="inline-flex items-center gap-2 text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>Back to {restaurant?.name || "Restaurant"}</span>
+          </Link>
+        )}
       </div>
 
       <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -195,7 +201,7 @@ export default function DishesPage() {
                 </div>
               </div>
               <Button type="submit" disabled={createMutation.isPending} className="text-sm sm:text-base w-full sm:w-auto">
-                Create Dish
+                {createMutation.isPending ? "Creating..." : "Create Dish"}
               </Button>
             </form>
           </DialogContent>
@@ -203,7 +209,30 @@ export default function DishesPage() {
       </div>
 
       <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-        {dishes?.map((dish) => (
+        {dishesLoading ? (
+          // Skeleton Loaders
+          [1, 2, 3, 4, 5, 6].map((i) => (
+            <Card key={i} className="h-full">
+              <CardHeader className="p-4 sm:p-6">
+                <Skeleton className="h-5 w-3/4 mb-2" />
+                <div className="flex gap-1">
+                  <Skeleton className="h-8 w-16" />
+                  <Skeleton className="h-8 w-16" />
+                </div>
+              </CardHeader>
+              <CardContent className="p-4 sm:p-6 pt-0">
+                <Skeleton className="w-full h-40 sm:h-48 rounded mb-3 sm:mb-4" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-2/3 mb-3" />
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-5 w-20" />
+                  <Skeleton className="h-4 w-12" />
+                </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          dishes?.map((dish) => (
           <Card key={dish.id} className="h-full">
             <CardHeader className="p-4 sm:p-6">
               <div className="flex items-start justify-between gap-2">
@@ -229,9 +258,10 @@ export default function DishesPage() {
                         deleteMutation.mutate({ id: dish.id });
                       }
                     }}
+                    disabled={deleteMutation.isPending}
                     className="text-xs sm:text-sm"
                   >
-                    Delete
+                    {deleteMutation.isPending ? "Deleting..." : "Delete"}
                   </Button>
                 </div>
               </div>
@@ -268,7 +298,8 @@ export default function DishesPage() {
               </div>
             </CardContent>
           </Card>
-        ))}
+          ))
+        )}
       </div>
 
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -364,7 +395,7 @@ export default function DishesPage() {
                 </div>
               </div>
               <Button type="submit" disabled={updateMutation.isPending} className="text-sm sm:text-base w-full sm:w-auto">
-                Update Dish
+                {updateMutation.isPending ? "Updating..." : "Update Dish"}
               </Button>
             </form>
           )}
