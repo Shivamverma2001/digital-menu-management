@@ -163,27 +163,27 @@ export function MenuView({ restaurant }: { restaurant: Restaurant }) {
     <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
       {/* Header - Fixed at top */}
       <header className="sticky top-0 z-20 bg-white border-b flex-shrink-0">
-        <div className="max-w-4xl mx-auto px-4 py-3">
-          <h1 className="text-2xl font-bold text-gray-800">{mainName}</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{locationPart}</p>
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 py-2 sm:py-3">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{mainName}</h1>
+          <p className="text-xs sm:text-sm text-gray-500 mt-0.5">{locationPart}</p>
         </div>
       </header>
 
       {/* Menu Items - Scrollable list */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto px-4 py-2">
+      <div className="flex-1 overflow-y-auto overscroll-contain">
+        <div className="max-w-4xl mx-auto px-2 sm:px-4 py-2 pb-20">
           {categoriesWithDishes.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 text-sm">
+            <div className="text-center py-8 text-gray-500 text-xs sm:text-sm">
               No menu items available
             </div>
           ) : (
-            <div className="bg-white overflow-hidden">
+            <div className="bg-white">
               {categoriesWithDishes.map(({ category, dishes }) => {
                 return (
                   <div key={category.id}>
                     {/* Category Header - Centered (only main category name) */}
-                    <div className="py-3 text-center border-b border-gray-200">
-                      <h2 className="text-base font-bold text-gray-800">
+                    <div className="py-2 sm:py-3 text-center border-b border-gray-200">
+                      <h2 className="text-sm sm:text-base font-bold text-gray-800">
                         {category.name}
                       </h2>
                     </div>

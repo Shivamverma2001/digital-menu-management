@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Dialog, DialogContent } from "~/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "~/components/ui/dialog";
 
 interface Dish {
   id: string;
@@ -26,31 +26,31 @@ export function MenuItem({ dish }: { dish: Dish }) {
 
   return (
     <>
-      <div className="bg-white border-b border-gray-200 py-3 px-4 flex gap-3 items-start w-full">
+      <div className="bg-white border-b border-gray-200 py-2 sm:py-3 px-2 sm:px-4 flex gap-2 sm:gap-3 items-start w-full">
         {/* Left side - Content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5 mb-1">
+          <div className="flex items-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
             {/* Dietary Indicator */}
-            <div className={`w-2.5 h-2.5 rounded-full ${dietaryColor} flex-shrink-0`} />
+            <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${dietaryColor} flex-shrink-0`} />
             
             {/* Spice Level */}
             {dish.spiceLevel !== null && dish.spiceLevel > 0 && (
               <div className="flex gap-0.5">
                 {Array.from({ length: dish.spiceLevel }).map((_, i) => (
-                  <span key={i} className="text-red-500 text-xs">🌶️</span>
+                  <span key={i} className="text-red-500 text-[10px] sm:text-xs">🌶️</span>
                 ))}
               </div>
             )}
           </div>
 
-          <h3 className="text-sm font-semibold text-gray-800 mb-0.5">{dish.name}</h3>
+          <h3 className="text-xs sm:text-sm font-semibold text-gray-800 mb-0.5">{dish.name}</h3>
           
-          <div className="text-sm font-bold text-gray-800 mb-1.5">
+          <div className="text-xs sm:text-sm font-bold text-gray-800 mb-1 sm:mb-1.5">
             {dish.price !== null ? `₹ ${Math.round(dish.price)}` : "---"}
           </div>
 
           {dish.description && (
-            <div className="text-xs text-gray-600 leading-relaxed">
+            <div className="text-[10px] sm:text-xs text-gray-600 leading-relaxed">
               {isDescriptionExpanded ? (
                 <>
                   {dish.description}
@@ -83,7 +83,7 @@ export function MenuItem({ dish }: { dish: Dish }) {
             </div>
           )}
           {!dish.description && (
-            <p className="text-xs text-gray-400">---</p>
+            <p className="text-[10px] sm:text-xs text-gray-400">---</p>
           )}
         </div>
 
@@ -91,7 +91,7 @@ export function MenuItem({ dish }: { dish: Dish }) {
         {dish.image && (
           <button
             onClick={() => setIsImageModalOpen(true)}
-            className="w-16 h-16 flex-shrink-0 rounded overflow-hidden bg-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
+            className="w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 rounded overflow-hidden bg-gray-100 cursor-pointer hover:opacity-90 transition-opacity"
           >
             <Image
               src={dish.image}
@@ -107,20 +107,27 @@ export function MenuItem({ dish }: { dish: Dish }) {
       {/* Image Modal */}
       {dish.image && (
         <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
-          <DialogContent className="max-w-2xl p-0">
-            <div className="relative w-full aspect-square">
+          <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl w-full p-0 left-[50%] top-[50%] gap-0">
+            <DialogHeader className="sr-only">
+              <DialogTitle>{dish.name}</DialogTitle>
+              <DialogDescription>
+                {dish.price !== null ? `Price: ₹${Math.round(dish.price)}` : "Dish image"}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="relative w-full max-h-[60vh] sm:max-h-[70vh] pt-[12%]">
               <Image
                 src={dish.image}
                 alt={dish.name}
-                fill
-                className="object-contain"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                width={800}
+                height={600}
+                className="w-full h-auto object-contain"
+                sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 768px) 90vw, 50vw"
               />
             </div>
-            <div className="p-4">
-              <h3 className="font-semibold text-lg">{dish.name}</h3>
+            <div className="px-4 py-3 sm:px-6 sm:py-4">
+              <h3 className="font-semibold text-base sm:text-lg mb-0.5">{dish.name}</h3>
               {dish.price !== null && (
-                <p className="text-gray-600">₹ {Math.round(dish.price)}</p>
+                <p className="text-sm sm:text-base text-gray-600">₹ {Math.round(dish.price)}</p>
               )}
             </div>
           </DialogContent>

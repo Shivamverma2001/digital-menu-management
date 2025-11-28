@@ -33,25 +33,25 @@ export function CategoryModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Menu Categories</DialogTitle>
+      <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md w-full max-h-[80vh] overflow-y-auto p-0 left-[50%] top-[50%] gap-0">
+        <DialogHeader className="px-4 pt-4 sm:px-6 sm:pt-6 pb-3 sm:pb-4">
+          <DialogTitle className="text-base sm:text-lg">Menu Categories</DialogTitle>
         </DialogHeader>
-        <div className="space-y-3 mt-4">
+        <div className="px-4 pb-4 sm:px-6 sm:pb-6 space-y-2 sm:space-y-3">
           {topLevelCategories.map((category) => {
             const subcategories = category.children || [];
             const hasSubcategories = subcategories.length > 0;
             const mainCategoryCount = getItemCount(category);
 
             return (
-              <div key={category.id} className="space-y-1">
+              <div key={category.id} className="space-y-0.5 sm:space-y-1">
                 {/* Main Category - Red, Bold Heading */}
                 <div className="px-2 py-1 -mx-2 text-center">
-                  <h3 className="font-bold text-red-600 text-base leading-tight">{category.name}</h3>
+                  <h3 className="font-bold text-red-600 text-sm sm:text-base leading-tight">{category.name}</h3>
                 </div>
                 
                 {/* Subcategories or Main Category with Count */}
-                <div className="pl-4">
+                <div className="pl-2 sm:pl-4">
                   {hasSubcategories ? (
                     // Show subcategories if they exist
                     <div className="space-y-0.5">
@@ -63,10 +63,10 @@ export function CategoryModal({
                             onClick={() => {
                               onSelectCategory(subcategory.id);
                             }}
-                            className="w-full text-black hover:text-gray-700 hover:bg-gray-50 px-2 py-1.5 rounded -mx-2 text-sm flex justify-between items-center"
+                            className="w-full text-black hover:text-gray-700 hover:bg-gray-50 px-2 py-1.5 sm:py-2 rounded -mx-2 text-xs sm:text-sm flex justify-between items-center transition-colors"
                           >
                             <span className="text-left">{subcategory.name}</span>
-                            <span className="text-right">{subCount}</span>
+                            <span className="text-right font-medium">{subCount}</span>
                           </button>
                         );
                       })}
@@ -78,10 +78,10 @@ export function CategoryModal({
                         onClick={() => {
                           onSelectCategory(category.id);
                         }}
-                        className="w-full text-black hover:text-gray-700 hover:bg-gray-50 px-2 py-1.5 rounded -mx-2 text-sm flex justify-between items-center"
+                        className="w-full text-black hover:text-gray-700 hover:bg-gray-50 px-2 py-1.5 sm:py-2 rounded -mx-2 text-xs sm:text-sm flex justify-between items-center transition-colors"
                       >
                         <span className="text-left">{category.name}</span>
-                        <span className="text-right">{mainCategoryCount}</span>
+                        <span className="text-right font-medium">{mainCategoryCount}</span>
                       </button>
                     )
                   )}
