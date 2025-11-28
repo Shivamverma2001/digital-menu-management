@@ -218,6 +218,8 @@ export default function CategoriesPage() {
                             size="sm"
                             onClick={() => {
                               setEditingCategory(mainCategory);
+                              setEditCategoryName(mainCategory.name);
+                              setEditParentId(mainCategory.parentId || "__none__");
                               setIsEditOpen(true);
                             }}
                             className="text-xs sm:text-sm flex-1 sm:flex-initial"
@@ -262,6 +264,8 @@ export default function CategoriesPage() {
                                     size="sm"
                                     onClick={() => {
                                       setEditingCategory(subcategory);
+                                      setEditCategoryName(subcategory.name);
+                                      setEditParentId(subcategory.parentId || "__none__");
                                       setIsEditOpen(true);
                                     }}
                                     className="text-xs sm:text-sm flex-1 sm:flex-initial"

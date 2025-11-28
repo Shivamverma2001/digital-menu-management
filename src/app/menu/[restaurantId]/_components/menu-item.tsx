@@ -104,30 +104,34 @@ export function MenuItem({ dish }: { dish: Dish }) {
         )}
       </div>
 
-      {/* Image Modal */}
+      {/* Image Modal - Portrait Card Layout */}
       {dish.image && (
         <Dialog open={isImageModalOpen} onOpenChange={setIsImageModalOpen}>
-          <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl w-full p-0 left-[50%] top-[50%] gap-0">
+          <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-md md:max-w-lg w-full p-0 left-[50%] top-[50%] gap-0">
             <DialogHeader className="sr-only">
               <DialogTitle>{dish.name}</DialogTitle>
               <DialogDescription>
                 {dish.price !== null ? `Price: ₹${Math.round(dish.price)}` : "Dish image"}
               </DialogDescription>
             </DialogHeader>
-            <div className="relative w-full max-h-[60vh] sm:max-h-[70vh] pt-[12%]">
-              <Image
-                src={dish.image}
-                alt={dish.name}
-                width={800}
-                height={600}
-                className="w-full h-auto object-contain"
-                sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 768px) 90vw, 50vw"
-              />
+            {/* Image Section - Takes full width */}
+            <div className="w-full overflow-hidden pt-10 sm:pt-12">
+              <div className="w-full aspect-[4/3] sm:aspect-[3/2] flex items-center justify-center bg-gray-50">
+                <Image
+                  src={dish.image}
+                  alt={dish.name}
+                  width={800}
+                  height={600}
+                  className="w-full h-full object-cover"
+                  sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 768px) 28rem, 32rem"
+                />
+              </div>
             </div>
-            <div className="px-4 py-3 sm:px-6 sm:py-4">
-              <h3 className="font-semibold text-base sm:text-lg mb-0.5">{dish.name}</h3>
+            {/* Content Section */}
+            <div className="px-4 py-3 sm:px-5 sm:py-4">
+              <h3 className="font-semibold text-base sm:text-lg mb-1">{dish.name}</h3>
               {dish.price !== null && (
-                <p className="text-sm sm:text-base text-gray-600">₹ {Math.round(dish.price)}</p>
+                <p className="text-sm sm:text-base font-medium text-gray-800">₹ {Math.round(dish.price)}</p>
               )}
             </div>
           </DialogContent>
