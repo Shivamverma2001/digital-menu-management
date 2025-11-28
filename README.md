@@ -2,6 +2,194 @@
 
 A full-stack digital menu management platform built with the T3 Stack, allowing restaurant owners to manage their menus and customers to view them digitally through QR codes or shared links.
 
+## 🌐 Live Application
+
+**Deployed URL**: [Add your Vercel deployment link here]
+> Note: Make sure the deployment is not behind Vercel Authentication
+
+## 📖 Assignment Submission Details
+
+### Approach to Solving the Problem
+
+I approached this assignment by breaking it down into logical phases:
+
+1. **Setup & Architecture**: Started with T3 Stack initialization, configured Prisma with PostgreSQL schema, and set up the basic project structure.
+
+2. **Authentication System**: Implemented custom email-based authentication (avoiding NextAuth as required) with:
+   - Email verification code generation and storage
+   - Code expiration handling (10 minutes)
+   - Session management using JWT and HTTP-only cookies
+   - Country name validation using a comprehensive list
+
+3. **Core Features Development**:
+   - **Restaurant Management**: CRUD operations with ownership validation
+   - **Category System**: Implemented hierarchical categories (main categories with subcategories) using self-referential Prisma relations
+   - **Dish Management**: Multi-category assignment using junction table (DishCategory)
+   - **Menu Display**: Public-facing menu with category navigation and filtering
+
+4. **UI/UX Implementation**: 
+   - Matched reference images for menu display
+   - Implemented fixed category header that updates dynamically while scrolling
+   - Added floating menu button for quick category navigation
+   - Made all components responsive (mobile, tablet, desktop)
+   - Added skeleton loaders for better loading experience
+
+5. **Performance Optimization**:
+   - Replaced `refetch()` with `invalidate()` for faster updates
+   - Added loading states and skeleton loaders across all pages
+   - Optimized queries to reduce unnecessary refetches
+
+6. **Edge Cases & Error Handling**:
+   - Empty state handling (no restaurants, categories, dishes)
+   - Form validation (empty inputs, invalid data)
+   - Image upload fallback (base64 when Vercel Blob not configured)
+   - Category filtering (hide categories with no items)
+   - Scroll-based category header updates
+
+### IDE Used
+
+- **Cursor** (VS Code-based IDE with AI integration)
+
+### AI Tools and Models Used
+
+- **Cursor AI** (Claude Sonnet 4.5 / GPT-4)
+- Used for:
+  - Code generation and refactoring
+  - Debugging and error fixing
+  - UI/UX implementation guidance
+  - Performance optimization suggestions
+  - Code review and best practices
+
+### Key Prompts Used with AI Tools
+
+1. **Initial Setup**: "Review my project and help me understand the structure"
+2. **Authentication**: "Implement email-based authentication without NextAuth using verification codes"
+3. **Database Schema**: "Design Prisma schema for restaurants, categories, and dishes with multi-category support"
+4. **UI Implementation**: "Match the menu display to these reference images" (with image references)
+5. **Performance**: "Optimize the app - it's slow when navigating and saving. Add skeleton loaders"
+6. **Feature Implementation**: "Implement fixed category name at top that updates while scrolling"
+7. **Edge Cases**: "Add validation to prevent empty category names and handle edge cases"
+
+### AI Tool Effectiveness
+
+**How Helpful**: The AI tool was extremely helpful for:
+- ✅ Rapid prototyping and initial implementation
+- ✅ Understanding T3 Stack patterns and best practices
+- ✅ Debugging complex issues (Intersection Observer, form handling)
+- ✅ UI/UX refinement to match reference designs
+- ✅ Performance optimization suggestions
+- ✅ Code structure and organization
+
+**Mistakes Identified and Corrected**:
+1. **Select Component Empty Values**: AI initially used `value=""` which caused React errors. Fixed by using `value="__none__"` and converting in handlers.
+2. **Image Upload Configuration**: AI suggested complex solutions, but we needed a simple base64 fallback for development.
+3. **Category Header Logic**: Initial implementation showed all category headers, but requirement was to hide the current one shown in sticky header.
+4. **Loading States**: AI initially used `refetch()` everywhere, but `invalidate()` is more performant.
+5. **Intersection Observer Setup**: Initial implementation had dependency issues causing re-renders. Fixed by proper cleanup and ref management.
+6. **Form Validation**: AI didn't initially add client-side validation for empty inputs. Added proper validation.
+
+### Edge Cases and Error Scenarios Handled
+
+**Beyond Requirements**:
+
+1. **Empty States**:
+   - No restaurants: Shows helpful message with "Create Restaurant" button
+   - No categories: Shows message prompting category creation
+   - No dishes: Shows empty state message
+   - Categories with no items: Hidden from category modal
+
+2. **Form Validation**:
+   - Empty category names: Disabled submit buttons
+   - Empty dish names: Required field validation
+   - Invalid email formats: Zod validation
+   - Invalid country names: Comprehensive country list validation
+   - Invalid image URLs: URL validation before submission
+
+3. **Data Integrity**:
+   - Restaurant ownership verification: Users can only manage their own restaurants
+   - Category ownership: Categories must belong to the restaurant being edited
+   - Dish ownership: Dishes must belong to the restaurant being edited
+   - Cascade deletes: Proper cleanup when deleting restaurants/categories/dishes
+
+4. **Image Handling**:
+   - Missing images: Graceful fallback (no broken images)
+   - Large file uploads: 5MB size limit with validation
+   - Invalid file types: Only images allowed (JPEG, PNG, WebP, GIF)
+   - Vercel Blob not configured: Falls back to base64 data URLs
+
+5. **Navigation & UX**:
+   - Breadcrumb navigation: Added to all dashboard pages
+   - Back buttons: Easy navigation between pages
+   - Loading states: Skeleton loaders prevent blank screens
+   - Button states: Disabled during mutations to prevent duplicate submissions
+
+6. **Category Hierarchy**:
+   - Subcategory display: Properly nested under parent categories
+   - Category filtering: Only shows categories with items
+   - Main category aggregation: Shows all dishes from subcategories when viewing main category
+
+7. **Scroll Behavior**:
+   - Fixed header: Category name updates dynamically
+   - Header hiding: Current category header hidden in list to avoid duplication
+   - Reverse scrolling: Works correctly when scrolling back up
+
+8. **Responsive Design**:
+   - Mobile breakpoints: Proper layout adjustments
+   - Touch interactions: Proper button sizes for mobile
+   - Text sizing: Responsive font sizes across devices
+
+### Edge Cases Identified But Not Fully Handled
+
+**Due to Time Constraints**:
+
+1. **Rate Limiting**:
+   - **Issue**: Email verification codes can be spammed (no rate limiting)
+   - **Solution**: Implement rate limiting middleware (e.g., using `@upstash/ratelimit`) to limit:
+     - 3 codes per email per hour
+     - 10 codes per IP per hour
+   - **Impact**: Low (development/testing phase)
+
+2. **Email Delivery Failures**:
+   - **Issue**: If email service fails, user sees generic error
+   - **Solution**: Better error messaging, retry logic, and fallback email service
+   - **Impact**: Medium (affects user registration/login)
+
+3. **Concurrent Edits**:
+   - **Issue**: Multiple users editing same restaurant could cause conflicts
+   - **Solution**: Implement optimistic locking or real-time updates
+   - **Impact**: Low (single-user per restaurant in current design)
+
+4. **Large Menu Performance**:
+   - **Issue**: Menus with 100+ dishes might be slow to render
+   - **Solution**: Implement virtual scrolling or pagination
+   - **Impact**: Low (most restaurants won't have 100+ items)
+
+5. **Image Optimization**:
+   - **Issue**: Large images not optimized before upload
+   - **Solution**: Client-side image compression before upload
+   - **Impact**: Medium (affects load times and storage)
+
+6. **Offline Support**:
+   - **Issue**: No offline functionality
+   - **Solution**: Service workers and local storage caching
+   - **Impact**: Low (web app, not PWA requirement)
+
+7. **Accessibility (A11y)**:
+   - **Issue**: Some components may not be fully accessible
+   - **Solution**: Add ARIA labels, keyboard navigation, screen reader support
+   - **Impact**: Medium (important for production)
+
+8. **Error Boundaries**:
+   - **Issue**: React errors could crash entire app
+   - **Solution**: Implement error boundaries at route level
+   - **Impact**: Medium (better error recovery)
+
+**Priority for Production**:
+1. Rate limiting (high priority)
+2. Better error handling (high priority)
+3. Image optimization (medium priority)
+4. Accessibility improvements (medium priority)
+
 ## 🚀 Tech Stack
 
 - **Framework**: Next.js 15 (App Router)
@@ -11,7 +199,7 @@ A full-stack digital menu management platform built with the T3 Stack, allowing 
 - **API**: tRPC
 - **UI Components**: shadcn/ui
 - **Authentication**: Custom email-based auth with verification codes
-- **Email Service**: Resend
+- **Email Service**: Gmail SMTP (via nodemailer)
 - **Image Storage**: Vercel Blob (optional)
 - **QR Code Generation**: qrcode library
 - **Deployment**: Vercel
@@ -54,7 +242,7 @@ A full-stack digital menu management platform built with the T3 Stack, allowing 
 ### Prerequisites
 - Node.js 18+ and npm
 - PostgreSQL database (recommended: Neon.com)
-- Resend account for email service
+- Gmail account with App Password for email service
 - (Optional) Vercel account for image storage
 
 ### Installation
@@ -79,9 +267,9 @@ A full-stack digital menu management platform built with the T3 Stack, allowing 
    # Authentication
    JWT_SECRET="your-secret-key-minimum-32-characters"
 
-   # Email Service (Resend)
-   RESEND_API_KEY="re_your_api_key_here"
-   EMAIL_FROM="noreply@yourdomain.com"
+   # Email Service (Gmail SMTP)
+   GMAIL_USER="your-email@gmail.com"
+   GMAIL_APP_PASSWORD="your-app-password"
 
    # App URL (for QR codes and shared links)
    NEXT_PUBLIC_APP_URL="http://localhost:3000"
@@ -195,7 +383,8 @@ Testing setup is planned but not yet implemented. The following test types are r
 4. **Environment Variables in Vercel**
    - `DATABASE_URL`
    - `JWT_SECRET`
-   - `RESEND_API_KEY`
+   - `GMAIL_USER`
+   - `GMAIL_APP_PASSWORD`
    - `EMAIL_FROM`
    - `NEXT_PUBLIC_APP_URL` (your Vercel domain)
    - `BLOB_READ_WRITE_TOKEN` (optional)
@@ -258,7 +447,7 @@ Testing setup is planned but not yet implemented. The following test types are r
 ## 🐛 Known Issues & Limitations
 
 1. **Image Upload**: Requires Vercel Blob token or manual URL entry
-2. **Email Service**: Requires Resend API key
+2. **Email Service**: Requires Gmail account with App Password
 3. **Testing**: Test suite not yet implemented
 4. **Error Handling**: Some edge cases may need additional handling
 5. **Rate Limiting**: Email sending not rate-limited (should be added for production)
@@ -290,4 +479,4 @@ This is an assignment project. For questions or feedback, please contact the rep
 
 ---
 
-**Note**: Make sure to configure all environment variables before running the application. The app requires a PostgreSQL database and Resend API key to function properly.
+**Note**: Make sure to configure all environment variables before running the application. The app requires a PostgreSQL database and Gmail SMTP credentials to function properly.

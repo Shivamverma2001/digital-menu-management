@@ -11,6 +11,8 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
+import { CountrySelect } from "~/components/country-select";
+import { toast } from "sonner";
 
 const profileSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -26,7 +28,7 @@ export default function ProfilePage() {
   const updateMutation = api.auth.updateProfile.useMutation({
     onSuccess: async () => {
       await utils.auth.me.invalidate();
-      alert("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
     },
   });
 
@@ -35,9 +37,13 @@ export default function ProfilePage() {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),
   });
+
+  const countryName = watch("countryName");
 
   useEffect(() => {
     if (user) {
@@ -88,7 +94,7 @@ export default function ProfilePage() {
       await updateMutation.mutateAsync(data);
     } catch (error: any) {
       const errorMessage = error?.data?.zodError?.fieldErrors || error?.message || "Update failed";
-      alert(typeof errorMessage === "string" ? errorMessage : "Failed to update profile");
+      toast.error(typeof errorMessage === "string" ? errorMessage : "Failed to update profile");
     }
   };
 
@@ -129,12 +135,16 @@ export default function ProfilePage() {
 
             <div className="space-y-2">
               <Label htmlFor="countryName" className="text-sm sm:text-base">Country Name</Label>
-              <Input
-                id="countryName"
-                type="text"
-                placeholder="United States"
+              <CountrySelect
+                value={countryName || ""}
+                onValueChange={(value) => setValue("countryName", value, { shouldValidate: true })}
+                placeholder="Select your country"
                 className="text-sm sm:text-base"
-                {...register("countryName")}
+              />
+              <input
+                type="hidden"
+                {...register("countryName", { required: "Country name is required" })}
+                value={countryName || ""}
               />
               {errors.countryName && (
                 <p className="text-xs sm:text-sm text-red-500">{errors.countryName.message}</p>

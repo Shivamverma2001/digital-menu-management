@@ -10,6 +10,8 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import { CountrySelect } from "~/components/country-select";
+import { toast } from "sonner";
 
 const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -40,6 +42,7 @@ export default function RegisterPage() {
     handleSubmit,
     formState: { errors },
     setValue,
+    watch,
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -50,18 +53,20 @@ export default function RegisterPage() {
     },
   });
 
+  const countryName = watch("countryName");
+
   const handleSendCode = async () => {
     if (!email) {
-      alert("Please enter your email address");
+      toast.error("Please enter your email address");
       return;
     }
     try {
       await sendCodeMutation.mutateAsync({ email });
       setCodeSent(true);
-      alert("Verification code sent to your email!");
+      toast.success("Verification code sent to your email!");
     } catch (error: any) {
       const errorMessage = error?.message || "Failed to send verification code";
-      alert(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -75,7 +80,7 @@ export default function RegisterPage() {
       await registerMutation.mutateAsync(registrationData);
     } catch (error: any) {
       const errorMessage = error?.data?.zodError?.fieldErrors || error?.message || "Registration failed";
-      alert(typeof errorMessage === "string" ? errorMessage : "Registration failed. Please check your inputs.");
+      toast.error(typeof errorMessage === "string" ? errorMessage : "Registration failed. Please check your inputs.");
     }
   };
 
@@ -144,11 +149,15 @@ export default function RegisterPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="countryName">Country Name</Label>
-                  <Input
-                    id="countryName"
-                    type="text"
-                    placeholder="United States"
-                    {...register("countryName")}
+                  <CountrySelect
+                    value={countryName || ""}
+                    onValueChange={(value) => setValue("countryName", value, { shouldValidate: true })}
+                    placeholder="Select your country"
+                  />
+                  <input
+                    type="hidden"
+                    {...register("countryName", { required: "Country name is required" })}
+                    value={countryName || ""}
                   />
                   {errors.countryName && (
                     <p className="text-sm text-red-500">{errors.countryName.message}</p>

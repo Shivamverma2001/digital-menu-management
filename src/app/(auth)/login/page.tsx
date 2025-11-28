@@ -10,6 +10,7 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import { toast } from "sonner";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -48,16 +49,16 @@ export default function LoginPage() {
 
   const handleSendCode = async () => {
     if (!email) {
-      alert("Please enter your email address");
+      toast.error("Please enter your email address");
       return;
     }
     try {
       await sendCodeMutation.mutateAsync({ email });
       setCodeSent(true);
-      alert("Verification code sent to your email!");
+      toast.success("Verification code sent to your email!");
     } catch (error: any) {
       const errorMessage = error?.message || "Failed to send verification code";
-      alert(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -71,7 +72,7 @@ export default function LoginPage() {
       await loginMutation.mutateAsync(loginData);
     } catch (error: any) {
       const errorMessage = error?.data?.zodError?.fieldErrors || error?.message || "Login failed";
-      alert(typeof errorMessage === "string" ? errorMessage : "Invalid verification code or user not found.");
+      toast.error(typeof errorMessage === "string" ? errorMessage : "Invalid verification code or user not found.");
     }
   };
 

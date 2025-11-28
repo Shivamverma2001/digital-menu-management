@@ -11,13 +11,10 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
-    RESEND_API_KEY: z.string().min(1).optional(),
-    SENDGRID_API_KEY: z.string().min(1).optional(),
-    // Gmail SMTP (for reliable email delivery)
+    // Gmail SMTP (for email delivery)
     GMAIL_USER: z.string().email().optional(),
     GMAIL_APP_PASSWORD: z.string().min(1).optional(),
     JWT_SECRET: z.string().min(1),
-    EMAIL_FROM: z.string().email().optional(),
     BLOB_READ_WRITE_TOKEN: z.string().min(1).optional(),
   },
 
@@ -37,12 +34,9 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
-    RESEND_API_KEY: process.env.RESEND_API_KEY,
-    SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
     GMAIL_USER: process.env.GMAIL_USER,
     GMAIL_APP_PASSWORD: process.env.GMAIL_APP_PASSWORD,
     JWT_SECRET: process.env.JWT_SECRET,
-    EMAIL_FROM: process.env.EMAIL_FROM,
     BLOB_READ_WRITE_TOKEN: process.env.BLOB_READ_WRITE_TOKEN,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },

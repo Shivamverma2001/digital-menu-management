@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MenuItem } from "./menu-item";
 import { CategoryModal } from "./category-modal";
 import { FloatingMenuButton } from "./floating-menu-button";
@@ -33,6 +33,9 @@ interface Restaurant {
 export function MenuView({ restaurant }: { restaurant: Restaurant }) {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentCategoryName, setCurrentCategoryName] = useState<string | null>(null);
+  const categoryRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Parse restaurant name and location for header
   // Try to split by common patterns, otherwise use location field
@@ -159,6 +162,61 @@ export function MenuView({ restaurant }: { restaurant: Restaurant }) {
 
   const categoriesWithDishes = getCategoriesWithDishes();
 
+  // Set up Intersection Observer to track which category is currently in view
+  useEffect(() => {
+    if (categoriesWithDishes.length === 0 || !scrollContainerRef.current) {
+      // Set initial category name if available
+      if (categoriesWithDishes.length > 0) {
+        setCurrentCategoryName(categoriesWithDishes[0]?.category.name || null);
+      }
+      return;
+    }
+
+    const observers: IntersectionObserver[] = [];
+    const options = {
+      root: scrollContainerRef.current,
+      rootMargin: "-100px 0px -60% 0px", // Trigger when category header is near the top of scroll container
+      threshold: [0, 0.1, 0.5],
+    };
+
+    // Wait for refs to be set
+    const timeoutId = setTimeout(() => {
+      categoryRefs.current.forEach((element, categoryId) => {
+        if (!element) return;
+
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
+              const category = categoriesWithDishes.find(
+                (c) => c.category.id === categoryId
+              );
+              if (category) {
+                setCurrentCategoryName(category.category.name);
+              }
+            }
+          });
+        }, options);
+
+        observer.observe(element);
+        observers.push(observer);
+      });
+    }, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      observers.forEach((observer) => observer.disconnect());
+    };
+  }, [categoriesWithDishes]);
+
+  // Reset current category when selection changes
+  useEffect(() => {
+    if (selectedCategoryId && categoriesWithDishes.length > 0) {
+      setCurrentCategoryName(categoriesWithDishes[0]?.category.name || null);
+    } else if (!selectedCategoryId && categoriesWithDishes.length > 0) {
+      setCurrentCategoryName(categoriesWithDishes[0]?.category.name || null);
+    }
+  }, [selectedCategoryId, categoriesWithDishes]);
+
   return (
     <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
       {/* Header - Fixed at top */}
@@ -167,10 +225,20 @@ export function MenuView({ restaurant }: { restaurant: Restaurant }) {
           <h1 className="text-xl sm:text-2xl font-bold text-gray-800">{mainName}</h1>
           <p className="text-xs sm:text-sm text-gray-500 mt-0.5">{locationPart}</p>
         </div>
+        {/* Fixed Category Name - Shows currently viewed category */}
+        {currentCategoryName && (
+          <div className="border-t border-gray-200 bg-white">
+            <div className="max-w-4xl mx-auto px-3 sm:px-4 py-2 sm:py-2.5">
+              <h2 className="text-sm sm:text-base font-bold text-gray-800 text-center">
+                {currentCategoryName}
+              </h2>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Menu Items - Scrollable list */}
-      <div className="flex-1 overflow-y-auto overscroll-contain">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overscroll-contain">
         <div className="max-w-4xl mx-auto px-2 sm:px-4 py-2 pb-20">
           {categoriesWithDishes.length === 0 ? (
             <div className="text-center py-8 text-gray-500 text-xs sm:text-sm">
@@ -179,14 +247,28 @@ export function MenuView({ restaurant }: { restaurant: Restaurant }) {
           ) : (
             <div className="bg-white">
               {categoriesWithDishes.map(({ category, dishes }) => {
+                // Hide category header in list if it's currently shown in sticky header
+                const isCurrentCategory = currentCategoryName === category.name;
+                
                 return (
-                  <div key={category.id}>
-                    {/* Category Header - Centered (only main category name) */}
-                    <div className="py-2 sm:py-3 text-center border-b border-gray-200">
-                      <h2 className="text-sm sm:text-base font-bold text-gray-800">
-                        {category.name}
-                      </h2>
-                    </div>
+                  <div
+                    key={category.id}
+                    ref={(el) => {
+                      if (el) {
+                        categoryRefs.current.set(category.id, el);
+                      } else {
+                        categoryRefs.current.delete(category.id);
+                      }
+                    }}
+                  >
+                    {/* Category Header - Only show if not currently in sticky header */}
+                    {!isCurrentCategory && (
+                      <div className="py-2 sm:py-3 text-center border-b border-gray-200">
+                        <h2 className="text-sm sm:text-base font-bold text-gray-800">
+                          {category.name}
+                        </h2>
+                      </div>
+                    )}
                     
                     {/* Dishes in this category */}
                     {dishes.map((dish) => (
