@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
@@ -43,6 +44,15 @@ export function RestaurantManagement({
   menuUrl,
   qrCodeUrl,
 }: RestaurantManagementProps) {
+  // Client-side cache busting for QR code
+  const [qrCodeUrlWithCache, setQrCodeUrlWithCache] = useState(qrCodeUrl);
+  
+  useEffect(() => {
+    // Force fresh QR code on client side
+    const freshUrl = `${qrCodeUrl}?t=${Date.now()}`;
+    setQrCodeUrlWithCache(freshUrl);
+  }, [qrCodeUrl]);
+  
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       {/* Breadcrumb Navigation */}
@@ -90,11 +100,13 @@ export function RestaurantManagement({
             <label className="text-xs sm:text-sm font-medium mb-2 block">QR Code</label>
             <div className="flex justify-center sm:justify-start">
               <Image
-                src={qrCodeUrl}
+                src={qrCodeUrlWithCache}
                 alt="QR Code"
                 width={200}
                 height={200}
                 className="border rounded w-32 h-32 sm:w-48 sm:h-48 md:w-52 md:h-52"
+                unoptimized
+                priority
               />
             </div>
           </div>

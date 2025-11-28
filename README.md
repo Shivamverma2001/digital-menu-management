@@ -4,8 +4,7 @@ A full-stack digital menu management platform built with the T3 Stack, allowing 
 
 ## 🌐 Live Application
 
-**Deployed URL**: [Add your Vercel deployment link here]
-> Note: Make sure the deployment is not behind Vercel Authentication
+**Deployed URL**: https://digital-menu-management.vercel.app/
 
 ## 📖 Assignment Submission Details
 
