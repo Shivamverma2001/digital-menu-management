@@ -29,14 +29,7 @@ const handler = async (req: NextRequest) => {
     req,
     router: appRouter,
     createContext,
-    onError:
-      env.NODE_ENV === "development"
-        ? ({ path, error }) => {
-            console.error(
-              `❌ tRPC failed on ${path ?? "<no-path>"}: ${error.message}`
-            );
-          }
-        : undefined,
+    onError: undefined,
   });
 
   // Read response body to ensure mutation completes
@@ -48,17 +41,11 @@ const handler = async (req: NextRequest) => {
 
   const responseHeaders = new Headers(response.headers);
   
-  // Check Map for stored session token AFTER mutation completes
-  console.log(`[COOKIE] Looking for token with requestId: ${requestId}`);
-  console.log(`[COOKIE] Map size: ${sessionTokenStore.size}`);
-  if (sessionTokenStore.size > 0) {
-    console.log(`[COOKIE] Map keys: ${Array.from(sessionTokenStore.keys()).join(", ")}`);
-  }
+  // Check Map for stored session token AFTER mutation completes;
   
   const storedToken = sessionTokenStore.get(requestId);
   
   if (storedToken) {
-    console.log(`[COOKIE] ✅ Found stored session token, setting cookie`);
     const isProduction = env.NODE_ENV === "production";
     const maxAge = 30 * 24 * 60 * 60; // 30 days in seconds
     const cookieString = `${SESSION_COOKIE_NAME}=${storedToken}; Path=/; HttpOnly; ${
@@ -69,8 +56,6 @@ const handler = async (req: NextRequest) => {
     
     // Clean up stored token
     sessionTokenStore.delete(requestId);
-  } else {
-    console.log(`[COOKIE] ❌ No stored session token found for request ${requestId}`);
   }
 
   // Return response with Set-Cookie header if token was stored

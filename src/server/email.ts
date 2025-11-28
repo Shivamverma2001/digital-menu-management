@@ -15,7 +15,6 @@ if (env.GMAIL_USER && env.GMAIL_APP_PASSWORD) {
 
 export async function sendVerificationCode(email: string, code: string) {
   if (!gmailTransporter || !env.GMAIL_USER) {
-    console.error("[EMAIL] Gmail SMTP not configured. Please set GMAIL_USER and GMAIL_APP_PASSWORD");
     return { 
       success: false, 
       error: "Email service not configured. Please set GMAIL_USER and GMAIL_APP_PASSWORD environment variables." 
@@ -23,9 +22,6 @@ export async function sendVerificationCode(email: string, code: string) {
   }
 
   try {
-    console.log(`[EMAIL] Sending verification code to: ${email}`);
-    console.log(`[EMAIL] Using FROM: ${env.GMAIL_USER}`);
-    
     await gmailTransporter.sendMail({
       from: env.GMAIL_USER,
       to: email,
@@ -43,10 +39,8 @@ export async function sendVerificationCode(email: string, code: string) {
       `,
     });
     
-    console.log(`[EMAIL] Email sent successfully via Gmail SMTP`);
     return { success: true };
   } catch (error: any) {
-    console.error("[EMAIL] Gmail SMTP error:", error);
     return { 
       success: false, 
       error: error?.message || "Failed to send email" 

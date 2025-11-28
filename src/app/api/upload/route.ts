@@ -55,7 +55,6 @@ export async function POST(request: Request) {
       warning: "Using base64 data URL. For production, configure BLOB_READ_WRITE_TOKEN for better performance."
     });
   } catch (error) {
-    console.error("Upload error:", error);
     return NextResponse.json(
       { error: "Failed to upload image" },
       { status: 500 }

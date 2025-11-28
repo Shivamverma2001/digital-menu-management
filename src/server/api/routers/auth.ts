@@ -39,32 +39,20 @@ export const authRouter = createTRPCRouter({
         },
       });
 
-      // TEMPORARY: Log code to console for testing (remove in production)
-      console.log(`[AUTH] Verification code for ${input.email}: ${code}`);
-
       // Send email
       try {
         const emailResult = await sendVerificationCode(input.email, code);
         if (!emailResult.success) {
-          console.error("[AUTH] Email sending failed:", emailResult.error);
-          // Still return success because code is saved - user can check console or use the code
-          // In production, you'd want to throw an error here
-          console.warn(`[AUTH] Email failed but code saved. Code: ${code}`);
           return { 
             success: true, 
-            warning: "Email delivery failed. Please check the console for your verification code or use your verified email address." 
+            warning: "Email delivery failed. Please try again or contact support." 
           };
         }
-        console.log(`[AUTH] Verification code sent successfully to ${input.email}`);
         return { success: true };
       } catch (error: any) {
-        console.error("[AUTH] Email sending error:", error);
-        // Code is already saved, so we can still allow registration
-        // User can check console for the code
-        console.warn(`[AUTH] Email error but code saved. Code: ${code}`);
         return { 
           success: true, 
-          warning: error?.message || "Email delivery failed. Please check the console for your verification code." 
+          warning: error?.message || "Email delivery failed. Please try again." 
         };
       }
     }),
@@ -181,19 +169,9 @@ export const authRouter = createTRPCRouter({
       });
 
       // Also store in context for route handler to access
-      console.log(`[AUTH] Attempting to store token in context (login)`);
-      console.log(`[AUTH] ctx.setSessionToken exists: ${!!ctx.setSessionToken}`);
-      console.log(`[AUTH] ctx.requestId: ${ctx.requestId}`);
-      
       if (ctx.setSessionToken) {
         ctx.setSessionToken(sessionToken);
-        console.log(`[AUTH] ✅ Token stored via setSessionToken (login)`);
-      } else {
-        console.log(`[AUTH] ❌ setSessionToken not available in context (login)`);
       }
-
-      console.log(`[AUTH] Cookie set for user: ${user.email}`);
-      console.log(`[AUTH] Session token length: ${sessionToken.length}`);
 
       return {
         user: {
@@ -265,19 +243,9 @@ export const authRouter = createTRPCRouter({
       });
 
       // Also store in context for route handler to access
-      console.log(`[AUTH] Attempting to store token in context (login)`);
-      console.log(`[AUTH] ctx.setSessionToken exists: ${!!ctx.setSessionToken}`);
-      console.log(`[AUTH] ctx.requestId: ${ctx.requestId}`);
-      
       if (ctx.setSessionToken) {
         ctx.setSessionToken(sessionToken);
-        console.log(`[AUTH] ✅ Token stored via setSessionToken (login)`);
-      } else {
-        console.log(`[AUTH] ❌ setSessionToken not available in context (login)`);
       }
-
-      console.log(`[AUTH] Cookie set for user: ${user.email}`);
-      console.log(`[AUTH] Session token length: ${sessionToken.length}`);
 
       return {
         user: {

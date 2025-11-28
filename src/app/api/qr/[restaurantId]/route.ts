@@ -17,16 +17,21 @@ export async function GET(
 
     // Convert data URL to buffer
     const base64Data = qrCodeDataUrl.split(",")[1];
+    if (!base64Data) {
+      return NextResponse.json(
+        { error: "Failed to generate QR code" },
+        { status: 500 }
+      );
+    }
     const buffer = Buffer.from(base64Data, "base64");
 
-    return new NextResponse(buffer, {
+    return new NextResponse(buffer as unknown as BodyInit, {
       headers: {
         "Content-Type": "image/png",
         "Cache-Control": "public, max-age=3600",
       },
     });
   } catch (error) {
-    console.error("Error generating QR code:", error);
     return NextResponse.json(
       { error: "Failed to generate QR code" },
       { status: 500 }

@@ -9,7 +9,7 @@ interface Category {
   id: string;
   name: string;
   parentId: string | null;
-  children: Category[];
+  children?: Category[];
   dishes: Array<{
     dish: {
       id: string;
@@ -87,7 +87,7 @@ export function MenuView({ restaurant }: { restaurant: Restaurant }) {
         });
 
         // Add dishes from all subcategories
-        mainCategory.children.forEach((subCategory) => {
+          (mainCategory.children || []).forEach((subCategory) => {
           subCategory.dishes.forEach((dc) => {
             if (!allDishes.find(d => d.id === dc.dish.id)) {
               allDishes.push(dc.dish);
@@ -140,7 +140,7 @@ export function MenuView({ restaurant }: { restaurant: Restaurant }) {
       });
 
       // Add dishes from all subcategories
-      mainCategory.children.forEach((subCategory) => {
+          (mainCategory.children || []).forEach((subCategory) => {
         subCategory.dishes.forEach((dc) => {
           if (!allDishes.find(d => d.id === dc.dish.id)) {
             allDishes.push(dc.dish);

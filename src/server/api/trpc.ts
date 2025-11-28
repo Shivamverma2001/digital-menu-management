@@ -34,13 +34,6 @@ export const sessionTokenStore = new Map<string, string>();
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get(SESSION_COOKIE_NAME)?.value ?? null;
-  
-  if (sessionToken) {
-    console.log(`[AUTH] Found session token in request, length: ${sessionToken.length}`);
-  } else {
-    console.log(`[AUTH] No session token found in request`);
-  }
-  
   const user = await getUserFromSession(sessionToken);
 
   // Generate a request ID for tracking
@@ -52,10 +45,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     sessionToken,
     requestId,
     setSessionToken: (token: string) => {
-      console.log(`[COOKIE] Storing session token for requestId: ${requestId}`);
-      console.log(`[COOKIE] Token length: ${token.length}`);
       sessionTokenStore.set(requestId, token);
-      console.log(`[COOKIE] Token stored. Map size: ${sessionTokenStore.size}`);
     },
     ...opts,
   };
@@ -119,9 +109,6 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   }
 
   const result = await next();
-
-  const end = Date.now();
-  console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
 
   return result;
 });

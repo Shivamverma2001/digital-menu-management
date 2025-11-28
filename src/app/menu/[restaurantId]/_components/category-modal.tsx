@@ -6,7 +6,7 @@ interface Category {
   id: string;
   name: string;
   parentId: string | null;
-  children: Category[];
+  children?: Category[];
   dishes: Array<{ dish: { id: string } }>;
 }
 

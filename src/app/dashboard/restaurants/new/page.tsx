@@ -37,7 +37,7 @@ export default function NewRestaurantPage() {
     try {
       await createMutation.mutateAsync(data);
     } catch (error) {
-      console.error("Failed to create restaurant:", error);
+      // Error handled by mutation
     }
   };
 
