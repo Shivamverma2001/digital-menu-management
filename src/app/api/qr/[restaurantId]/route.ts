@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import QRCode from "qrcode";
+import { env } from "~/env";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ restaurantId: string }> }
 ) {
   const { restaurantId } = await params;
-  const origin = request.headers.get("origin") || "http://localhost:3000";
-  const menuUrl = `${origin}/menu/${restaurantId}`;
+  // Use NEXT_PUBLIC_APP_URL from environment, fallback to origin header, then localhost
+  const baseUrl = env.NEXT_PUBLIC_APP_URL || request.headers.get("origin") || "http://localhost:3000";
+  const menuUrl = `${baseUrl}/menu/${restaurantId}`;
 
   try {
     const qrCodeDataUrl = await QRCode.toDataURL(menuUrl, {

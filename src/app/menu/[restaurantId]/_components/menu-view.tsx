@@ -172,39 +172,86 @@ export function MenuView({ restaurant }: { restaurant: Restaurant }) {
       return;
     }
 
+    const scrollContainer = scrollContainerRef.current;
     const observers: IntersectionObserver[] = [];
+    
+    // Function to find the category closest to the top of the viewport
+    const updateCurrentCategory = () => {
+      if (!scrollContainer) return;
+      
+      interface CategoryInfo {
+        id: string;
+        name: string;
+        distance: number;
+      }
+      let closestCategory: CategoryInfo | null = null;
+
+      categoryRefs.current.forEach((element, categoryId) => {
+        if (!element) return;
+
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        
+        // Calculate distance from top of scroll container
+        const distanceFromTop = elementRect.top - containerRect.top;
+        
+        // Only consider elements that are visible (within or above the viewport)
+        if (elementRect.bottom >= containerRect.top && elementRect.top <= containerRect.bottom) {
+          // Prefer elements that are at or above the top of the container
+          const adjustedDistance = distanceFromTop <= 0 ? Math.abs(distanceFromTop) : distanceFromTop + 1000;
+          
+          if (!closestCategory || adjustedDistance < closestCategory.distance) {
+            const category = categoriesWithDishes.find(
+              (c) => c.category.id === categoryId
+            );
+            if (category) {
+              closestCategory = {
+                id: categoryId,
+                name: category.category.name,
+                distance: adjustedDistance,
+              };
+            }
+          }
+        }
+      });
+
+      if (closestCategory !== null) {
+        const categoryName: string = (closestCategory as CategoryInfo).name;
+        setCurrentCategoryName(categoryName);
+      }
+    };
+
+    // Set up Intersection Observer for each category header
     const options = {
-      root: scrollContainerRef.current,
-      rootMargin: "-100px 0px -60% 0px", // Trigger when category header is near the top of scroll container
-      threshold: [0, 0.1, 0.5],
+      root: scrollContainer,
+      rootMargin: "-80px 0px -80% 0px", // Trigger when category header is near the top
+      threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
     };
 
     // Wait for refs to be set
     const timeoutId = setTimeout(() => {
-      categoryRefs.current.forEach((element, categoryId) => {
+      categoryRefs.current.forEach((element) => {
         if (!element) return;
 
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting && entry.intersectionRatio > 0.1) {
-              const category = categoriesWithDishes.find(
-                (c) => c.category.id === categoryId
-              );
-              if (category) {
-                setCurrentCategoryName(category.category.name);
-              }
-            }
-          });
+        const observer = new IntersectionObserver(() => {
+          updateCurrentCategory();
         }, options);
 
         observer.observe(element);
         observers.push(observer);
       });
+
+      // Also update on scroll for more accurate tracking
+      scrollContainer.addEventListener("scroll", updateCurrentCategory, { passive: true });
+      
+      // Initial update
+      updateCurrentCategory();
     }, 100);
 
     return () => {
       clearTimeout(timeoutId);
       observers.forEach((observer) => observer.disconnect());
+      scrollContainer.removeEventListener("scroll", updateCurrentCategory);
     };
   }, [categoriesWithDishes]);
 
