@@ -12,7 +12,7 @@ export async function GET(
   // 2. Host header from the request (most reliable in production)
   // 3. Vercel's x-vercel-url header
   // 4. Origin header (if not localhost)
-  // 5. localhost (development fallback)
+  // 5. localhost (development fallback ONLY)
   
   const envUrl = process.env.NEXT_PUBLIC_APP_URL;
   const host = request.headers.get("host");
@@ -20,27 +20,40 @@ export async function GET(
   const vercelUrl = request.headers.get("x-vercel-url");
   const forwardedProto = request.headers.get("x-forwarded-proto");
   
+  // These are automatically set by Vercel/Node.js - you don't need to configure them
+  // VERCEL is set to "1" when running on Vercel platform
+  // NODE_ENV is "production" in production builds
+  const isProduction = process.env.VERCEL || process.env.NODE_ENV === "production";
+  
   // Trim and validate env URL - if it exists and is not empty, use it
   let baseUrl = envUrl?.trim();
   
   // If env var is not set or empty, use the request's host (most reliable in production)
   if (!baseUrl || baseUrl === "") {
-    if (host && !host.includes("localhost") && !host.includes("127.0.0.1")) {
-      // Use https in production (Vercel always uses HTTPS)
-      const protocol = forwardedProto || 
-                      (host.includes("vercel.app") ? "https" : "http");
-      baseUrl = `${protocol}://${host}`;
-    } else {
-      // Check Vercel's deployment URL header
-      if (vercelUrl) {
+    // In production, NEVER use localhost - always use the request host
+    if (isProduction) {
+      if (host && !host.includes("localhost") && !host.includes("127.0.0.1")) {
+        // Use https in production (Vercel always uses HTTPS)
+        const protocol = forwardedProto || "https";
+        baseUrl = `${protocol}://${host}`;
+      } else if (vercelUrl) {
+        // Use Vercel's deployment URL header
         baseUrl = `https://${vercelUrl}`;
+      } else if (origin && !origin.includes("localhost") && !origin.includes("127.0.0.1")) {
+        // Use origin header as fallback
+        baseUrl = origin;
       } else {
-        // Check origin header (if not localhost)
-        if (origin && !origin.includes("localhost") && !origin.includes("127.0.0.1")) {
-          baseUrl = origin;
-        } else {
-          baseUrl = "http://localhost:3000";
-        }
+        // Last resort: construct from Vercel environment
+        // This should not happen, but if it does, we need a production URL
+        baseUrl = `https://${process.env.VERCEL_URL || host || "your-app.vercel.app"}`;
+      }
+    } else {
+      // Development: use localhost
+      if (host && !host.includes("localhost") && !host.includes("127.0.0.1")) {
+        const protocol = forwardedProto || "http";
+        baseUrl = `${protocol}://${host}`;
+      } else {
+        baseUrl = "http://localhost:3000";
       }
     }
   }
