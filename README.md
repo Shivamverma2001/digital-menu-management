@@ -347,15 +347,6 @@ assignment/
 - File upload uses Vercel Blob (if configured) or falls back to URL
 - Validates file type (images only) and size (max 5MB)
 
-## 🧪 Testing
-
-Testing setup is planned but not yet implemented. The following test types are recommended:
-
-- **Unit Tests**: tRPC procedures using Vitest
-- **Integration Tests**: Complete user flows
-- **E2E Tests**: Critical paths using Playwright
-- **Component Tests**: UI components using React Testing Library
-
 ## 🚢 Deployment
 
 ### Vercel Deployment
