@@ -19,6 +19,7 @@ export function LogoutButton() {
       size="sm"
       onClick={() => logoutMutation.mutate()}
       disabled={logoutMutation.isPending}
+      className="text-xs sm:text-sm"
     >
       Logout
     </Button>

@@ -44,86 +44,89 @@ export function RestaurantManagement({
   qrCodeUrl,
 }: RestaurantManagementProps) {
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       {/* Breadcrumb Navigation */}
-      <div className="mb-4">
+      <div className="mb-4 sm:mb-6">
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
           <span>Back to Dashboard</span>
         </Link>
       </div>
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{restaurant.name}</h1>
-        <p className="text-gray-600">{restaurant.location}</p>
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">{restaurant.name}</h1>
+        <p className="text-sm sm:text-base text-gray-600">{restaurant.location}</p>
       </div>
 
       {/* QR Code and Share Link */}
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Share Menu</CardTitle>
+      <Card className="mb-6 sm:mb-8">
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl">Share Menu</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="p-4 sm:p-6 pt-0 space-y-4 sm:space-y-6">
           <div>
-            <label className="text-sm font-medium mb-2 block">Menu URL</label>
-            <div className="flex gap-2">
+            <label className="text-xs sm:text-sm font-medium mb-2 block">Menu URL</label>
+            <div className="flex flex-col sm:flex-row gap-2">
               <input
                 type="text"
                 value={menuUrl}
                 readOnly
-                className="flex-1 px-3 py-2 border rounded"
+                className="flex-1 px-3 py-2 text-xs sm:text-sm border rounded"
               />
               <Button
                 onClick={() => {
                   navigator.clipboard.writeText(menuUrl);
                 }}
+                className="text-xs sm:text-sm whitespace-nowrap"
               >
                 Copy
               </Button>
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium mb-2 block">QR Code</label>
-            <Image
-              src={qrCodeUrl}
-              alt="QR Code"
-              width={200}
-              height={200}
-              className="border rounded"
-            />
+            <label className="text-xs sm:text-sm font-medium mb-2 block">QR Code</label>
+            <div className="flex justify-center sm:justify-start">
+              <Image
+                src={qrCodeUrl}
+                alt="QR Code"
+                width={200}
+                height={200}
+                className="border rounded w-32 h-32 sm:w-48 sm:h-48 md:w-52 md:h-52"
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-2 mb-8">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 mb-6 sm:mb-8">
         <Card>
-          <CardHeader>
-            <CardTitle>Categories</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Categories</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <p className="text-sm sm:text-base text-gray-600 mb-4">
               {categories.length} categor{categories.length !== 1 ? "ies" : "y"}
             </p>
             <Link href={`/dashboard/restaurants/${restaurant.id}/categories`}>
-              <Button className="w-full">Manage Categories</Button>
+              <Button className="w-full text-sm sm:text-base">Manage Categories</Button>
             </Link>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle>Dishes</CardTitle>
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-lg sm:text-xl">Dishes</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <p className="text-sm sm:text-base text-gray-600 mb-4">
               {dishes.length} dish{dishes.length !== 1 ? "es" : ""}
             </p>
             <Link href={`/dashboard/restaurants/${restaurant.id}/dishes`}>
-              <Button className="w-full">Manage Dishes</Button>
+              <Button className="w-full text-sm sm:text-base">Manage Dishes</Button>
             </Link>
           </CardContent>
         </Card>

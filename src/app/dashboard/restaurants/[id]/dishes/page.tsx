@@ -107,35 +107,35 @@ export default function DishesPage() {
   };
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       {/* Breadcrumb Navigation */}
-      <div className="mb-4">
+      <div className="mb-4 sm:mb-6">
         <Link
           href={`/dashboard/restaurants/${restaurantId}`}
-          className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm text-gray-600 hover:text-gray-900 transition-colors"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4" />
           <span>Back to {restaurant?.name || "Restaurant"}</span>
         </Link>
       </div>
 
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Dishes</h1>
-          <p className="text-gray-600">Manage menu items</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Dishes</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Manage menu items</p>
         </div>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button>+ Add Dish</Button>
+            <Button className="w-full sm:w-auto text-sm sm:text-base">+ Add Dish</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Create Dish</DialogTitle>
+              <DialogTitle className="text-base sm:text-lg">Create Dish</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleCreate} className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Dish Name *</Label>
-                <Input id="name" name="name" required />
+                <Label htmlFor="name" className="text-sm sm:text-base">Dish Name *</Label>
+                <Input id="name" name="name" required className="text-sm sm:text-base" />
               </div>
               <ImageUpload
                 value={createImageUrl}
@@ -143,18 +143,18 @@ export default function DishesPage() {
               />
               <input type="hidden" name="image" value={createImageUrl} />
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" name="description" rows={3} />
+                <Label htmlFor="description" className="text-sm sm:text-base">Description</Label>
+                <Textarea id="description" name="description" rows={3} className="text-sm sm:text-base" />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="price">Price (₹)</Label>
-                  <Input id="price" name="price" type="number" step="0.01" min="0" />
+                  <Label htmlFor="price" className="text-sm sm:text-base">Price (₹)</Label>
+                  <Input id="price" name="price" type="number" step="0.01" min="0" className="text-sm sm:text-base" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="spiceLevel">Spice Level (0-3)</Label>
+                  <Label htmlFor="spiceLevel" className="text-sm sm:text-base">Spice Level (0-3)</Label>
                   <Select name="spiceLevel">
-                    <SelectTrigger>
+                    <SelectTrigger className="text-sm sm:text-base">
                       <SelectValue placeholder="None" />
                     </SelectTrigger>
                     <SelectContent>
@@ -167,9 +167,9 @@ export default function DishesPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="dietaryType">Dietary Type *</Label>
+                <Label htmlFor="dietaryType" className="text-sm sm:text-base">Dietary Type *</Label>
                 <Select name="dietaryType" defaultValue="vegetarian">
-                  <SelectTrigger>
+                  <SelectTrigger className="text-sm sm:text-base">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -179,10 +179,10 @@ export default function DishesPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Categories</Label>
+                <Label className="text-sm sm:text-base">Categories</Label>
                 <div className="space-y-2 max-h-40 overflow-y-auto border rounded p-2">
                   {categories?.map((cat) => (
-                    <label key={cat.id} className="flex items-center space-x-2">
+                    <label key={cat.id} className="flex items-center space-x-2 text-sm sm:text-base">
                       <input
                         type="checkbox"
                         name="categoryIds"
@@ -194,7 +194,7 @@ export default function DishesPage() {
                   ))}
                 </div>
               </div>
-              <Button type="submit" disabled={createMutation.isPending}>
+              <Button type="submit" disabled={createMutation.isPending} className="text-sm sm:text-base w-full sm:w-auto">
                 Create Dish
               </Button>
             </form>
@@ -202,13 +202,13 @@ export default function DishesPage() {
         </Dialog>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {dishes?.map((dish) => (
-          <Card key={dish.id}>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <CardTitle className="text-lg">{dish.name}</CardTitle>
-                <div className="flex gap-1">
+          <Card key={dish.id} className="h-full">
+            <CardHeader className="p-4 sm:p-6">
+              <div className="flex items-start justify-between gap-2">
+                <CardTitle className="text-base sm:text-lg flex-1">{dish.name}</CardTitle>
+                <div className="flex gap-1 flex-shrink-0">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -217,6 +217,7 @@ export default function DishesPage() {
                       setEditImageUrl(dish.image || "");
                       setIsEditOpen(true);
                     }}
+                    className="text-xs sm:text-sm"
                   >
                     Edit
                   </Button>
@@ -228,37 +229,38 @@ export default function DishesPage() {
                         deleteMutation.mutate({ id: dish.id });
                       }
                     }}
+                    className="text-xs sm:text-sm"
                   >
                     Delete
                   </Button>
                 </div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 sm:p-6 pt-0">
               {dish.image && (
                 <Image
                   src={dish.image}
                   alt={dish.name}
                   width={200}
                   height={200}
-                  className="w-full h-48 object-cover rounded mb-4"
+                  className="w-full h-40 sm:h-48 object-cover rounded mb-3 sm:mb-4"
                 />
               )}
-              <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+              <p className="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3 line-clamp-2">
                 {dish.description || "No description"}
               </p>
               <div className="flex items-center justify-between">
-                <span className="font-bold">
+                <span className="font-bold text-sm sm:text-base">
                   {dish.price !== null ? `₹ ${dish.price.toFixed(0)}` : "---"}
                 </span>
                 <div className="flex items-center gap-2">
                   <div
-                    className={`w-3 h-3 rounded-full ${
+                    className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full ${
                       dish.dietaryType === "vegetarian" ? "bg-green-500" : "bg-red-500"
                     }`}
                   />
                   {dish.spiceLevel !== null && dish.spiceLevel > 0 && (
-                    <span className="text-red-500">
+                    <span className="text-red-500 text-xs sm:text-sm">
                       {Array(dish.spiceLevel).fill("🌶️").join("")}
                     </span>
                   )}
@@ -270,19 +272,20 @@ export default function DishesPage() {
       </div>
 
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl w-full max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Dish</DialogTitle>
+            <DialogTitle className="text-base sm:text-lg">Edit Dish</DialogTitle>
           </DialogHeader>
           {editingDish && (
             <form onSubmit={handleEdit} className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-name">Dish Name *</Label>
+                <Label htmlFor="edit-name" className="text-sm sm:text-base">Dish Name *</Label>
                 <Input
                   id="edit-name"
                   name="name"
                   defaultValue={editingDish.name}
                   required
+                  className="text-sm sm:text-base"
                 />
               </div>
               <ImageUpload
@@ -291,17 +294,18 @@ export default function DishesPage() {
               />
               <input type="hidden" name="image" value={editImageUrl} />
               <div className="space-y-2">
-                <Label htmlFor="edit-description">Description</Label>
+                <Label htmlFor="edit-description" className="text-sm sm:text-base">Description</Label>
                 <Textarea
                   id="edit-description"
                   name="description"
                   rows={3}
                   defaultValue={editingDish.description || ""}
+                  className="text-sm sm:text-base"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="edit-price">Price (₹)</Label>
+                  <Label htmlFor="edit-price" className="text-sm sm:text-base">Price (₹)</Label>
                   <Input
                     id="edit-price"
                     name="price"
@@ -309,12 +313,13 @@ export default function DishesPage() {
                     step="0.01"
                     min="0"
                     defaultValue={editingDish.price || ""}
+                    className="text-sm sm:text-base"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="edit-spiceLevel">Spice Level</Label>
+                  <Label htmlFor="edit-spiceLevel" className="text-sm sm:text-base">Spice Level</Label>
                   <Select name="spiceLevel" defaultValue={editingDish.spiceLevel?.toString() || "__none__"}>
-                    <SelectTrigger>
+                    <SelectTrigger className="text-sm sm:text-base">
                       <SelectValue placeholder="None" />
                     </SelectTrigger>
                     <SelectContent>
@@ -328,9 +333,9 @@ export default function DishesPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-dietaryType">Dietary Type *</Label>
+                <Label htmlFor="edit-dietaryType" className="text-sm sm:text-base">Dietary Type *</Label>
                 <Select name="dietaryType" defaultValue={editingDish.dietaryType}>
-                  <SelectTrigger>
+                  <SelectTrigger className="text-sm sm:text-base">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -340,10 +345,10 @@ export default function DishesPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Categories</Label>
+                <Label className="text-sm sm:text-base">Categories</Label>
                 <div className="space-y-2 max-h-40 overflow-y-auto border rounded p-2">
                   {categories?.map((cat) => (
-                    <label key={cat.id} className="flex items-center space-x-2">
+                    <label key={cat.id} className="flex items-center space-x-2 text-sm sm:text-base">
                       <input
                         type="checkbox"
                         name="categoryIds"
@@ -358,7 +363,7 @@ export default function DishesPage() {
                   ))}
                 </div>
               </div>
-              <Button type="submit" disabled={updateMutation.isPending}>
+              <Button type="submit" disabled={updateMutation.isPending} className="text-sm sm:text-base w-full sm:w-auto">
                 Update Dish
               </Button>
             </form>

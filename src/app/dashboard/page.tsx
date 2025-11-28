@@ -12,15 +12,15 @@ export default async function DashboardPage() {
   const restaurants = await api.restaurant.getAll();
 
   return (
-    <div className="container mx-auto py-8">
-      <div className="mb-8 flex items-center justify-between">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="mb-6 sm:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-gray-600">Welcome back, {user.fullName}!</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Dashboard</h1>
+          <p className="text-sm sm:text-base text-gray-600 mt-1">Welcome back, {user.fullName}!</p>
         </div>
         <a
           href="/dashboard/restaurants/new"
-          className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          className="w-full sm:w-auto rounded bg-blue-600 px-4 py-2 text-sm sm:text-base text-white hover:bg-blue-700 text-center transition-colors"
         >
           + New Restaurant
         </a>
